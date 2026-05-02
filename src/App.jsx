@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import bridge from "./core/bridge";
+// bridge.init...
+// bridge.run...
 
 export default function App() {
 
