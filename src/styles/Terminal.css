@@ -1,1 +1,64 @@
+.terminal {
+  background: #050508;
+  border: 1px solid #1a1a2e;
+  border-radius: 12px;
 
+  padding: 20px;
+
+  min-height: 320px;
+
+  font-family: monospace;
+
+  overflow-y: auto;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 16px;
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+}
+
+.terminal-title {
+  color: #64748B;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.terminal-line {
+  color: #34D399;
+  font-size: 13px;
+
+  margin-bottom: 8px;
+
+  line-height: 1.6;
+}
+
+.terminal-agent {
+  color: #6366F1;
+  font-weight: bold;
+}
+
+.terminal-success {
+  color: #34D399;
+}
+
+.terminal-warning {
+  color: #F59E0B;
+}
+
+.terminal-error {
+  color: #EF4444;
+}
+
+.terminal-input {
+  color: #38BDF8;
+}
