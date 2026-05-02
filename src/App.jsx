@@ -3,50 +3,41 @@ import bridge from "./core/bridge";
 
 export default function App() {
 
-  const [state, setState] =
-    useState(
-      bridge.getState()
-    );
+  const [state, setState] = useState({
+    logs: [],
+    result: null,
+    running: false
+  });
 
-  const [input, setInput] =
-    useState(
-      "bitcoin e clima em goiânia"
-    );
-
+  const [input, setInput] = useState(
+    "bitcoin e clima em goiânia"
+  );
 
   useEffect(() => {
-
-    bridge.init(setState);
-
+    if (bridge?.init) {
+      bridge.init(setState);
+    }
   }, []);
 
-
   async function run() {
-
-    await bridge.run(
-      input,
-      setState
-    );
+    if (bridge?.run) {
+      await bridge.run(input, setState);
+    }
   }
 
-
   return (
-
     <div style={styles.app}>
 
       <h1 style={styles.title}>
         🧠 Agent Studio
       </h1>
 
-
       <p style={styles.subtitle}>
         Multi-Agent Intelligence System
       </p>
 
-
       {/* INPUT */}
       <div style={styles.card}>
-
         <input
           value={input}
           onChange={(e) =>
@@ -55,16 +46,13 @@ export default function App() {
           style={styles.input}
         />
 
-
         <button
           onClick={run}
           style={styles.button}
         >
           RUN
         </button>
-
       </div>
-
 
       {/* STATUS */}
       <div style={styles.card}>
@@ -75,26 +63,26 @@ export default function App() {
         </span>
       </div>
 
-
-      {/* LOGS */}
+      {/* LOGS (SAFE) */}
       <div style={styles.logBox}>
-
         <h3>Logs</h3>
 
-        {state.logs.map((l, i) => (
+        {(state.logs || []).length === 0 && (
+          <div style={{ opacity: 0.5 }}>
+            Sem logs ainda...
+          </div>
+        )}
+
+        {(state.logs || []).map((l, i) => (
           <div key={i}>
             [{l.agent}] {l.msg}
           </div>
         ))}
-
       </div>
-
 
       {/* RESULT */}
       {state.result && (
-
         <div style={styles.result}>
-
           <h3>Result</h3>
 
           <pre>
@@ -104,18 +92,14 @@ export default function App() {
               2
             )}
           </pre>
-
         </div>
-
       )}
 
     </div>
   );
 }
 
-
 const styles = {
-
   app: {
     minHeight: "100vh",
     background: "#080810",
@@ -127,18 +111,15 @@ const styles = {
     fontFamily: "monospace"
   },
 
-
   title: {
     fontSize: "32px",
     marginBottom: "8px"
   },
 
-
   subtitle: {
     color: "#64748B",
     marginBottom: "24px"
   },
-
 
   card: {
     background: "#111122",
@@ -151,7 +132,6 @@ const styles = {
     width: "400px"
   },
 
-
   input: {
     flex: 1,
     background: "#0a0a14",
@@ -160,7 +140,6 @@ const styles = {
     padding: "8px",
     borderRadius: "8px"
   },
-
 
   button: {
     background: "#6366F1",
@@ -171,12 +150,10 @@ const styles = {
     cursor: "pointer"
   },
 
-
   online: {
     color: "#34D399",
     fontWeight: "bold"
   },
-
 
   logBox: {
     width: "400px",
@@ -189,7 +166,6 @@ const styles = {
     overflow: "auto"
   },
 
-
   result: {
     width: "400px",
     background: "#0a0a14",
@@ -197,5 +173,4 @@ const styles = {
     borderRadius: "12px",
     padding: "12px"
   }
-
 };
