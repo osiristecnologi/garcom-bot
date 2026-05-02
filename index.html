@@ -1,1 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Agent Studio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+
+<div class="layout">
+
+  <div class="sidebar">
+    <h3>📁 Files</h3>
+    <button onclick="openFile('index.html')">index.html</button>
+    <button onclick="openFile('style.css')">style.css</button>
+  </div>
+
+  <div class="main">
+
+    <div class="terminal">
+      <h3>🧠 Agent Command</h3>
+      <input id="cmd" placeholder="Digite comando...">
+      <button onclick="runAgent()">Executar</button>
+    </div>
+
+    <pre id="output"></pre>
+
+  </div>
+
+</div>
+
+<script src="js/parser.js"></script>
+<script src="js/router.js"></script>
+<script src="js/agent.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
