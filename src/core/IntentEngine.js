@@ -1,48 +1,64 @@
-export function detectIntent(input = "") {
+const intentEngine = {
 
-  const query = input.toLowerCase();
+  analyze(
+    text = ""
+  ) {
 
-  return {
-
-    crypto:
-      /bitcoin|btc|ethereum|eth|solana|crypto|token|coin/.test(query),
-
-    weather:
-      /clima|tempo|chuva|temperatura|weather/.test(query),
-
-    news:
-      /news|noticias|notícias|manchetes|jornal/.test(query),
-
-    maps:
-      /rota|mapa|distancia|distância|cidade|km|trajeto/.test(query),
-
-    dev:
-      /github|gitlab|react|javascript|typescript|codigo|código|npm/.test(query),
-
-    movies:
-      /filme|filmes|cinema|serie|série|tmdb/.test(query),
-
-    ai:
-      /ia|ai|openai|modelo|llm|agent/.test(query)
-
-  };
-}
+    const t =
+      text.toLowerCase();
 
 
-// ============================
-// OPTIONAL SCORE SYSTEM
-// ============================
-export function detectMainIntent(input = "") {
+    return {
 
-  const intents = detectIntent(input);
+      crypto:
+        /bitcoin|ethereum|btc|crypto|solana/.test(
+          t
+        ),
 
-  const active = Object
-    .entries(intents)
-    .filter(([_, value]) => value);
+      weather:
+        /clima|tempo|temperatura|chuva/.test(
+          t
+        ),
 
-  if (active.length === 0) {
-    return "unknown";
+      news:
+        /notícia|news|atual|breaking/.test(
+          t
+        ),
+
+      github:
+        /github|repo|código|react|next|typescript/.test(
+          t
+        ),
+
+      maps:
+        /rota|mapa|distância|goiânia|anápolis/.test(
+          t
+        ),
+
+      movies:
+        /filme|movie|cinema|netflix|série/.test(
+          t
+        ),
+
+      ai:
+        /explica|o que é|como funciona|resuma|chat/.test(
+          t
+        )
+    };
+  },
+
+
+  score(
+    intent
+  ) {
+
+    return Object.values(
+      intent
+    ).filter(Boolean).length;
   }
 
-  return active[0][0];
-}
+};
+
+
+export default
+  intentEngine;
