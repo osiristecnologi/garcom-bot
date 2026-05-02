@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-// bridge.init...
-// bridge.run...
+import bridge from "./core/bridge";
 
 export default function App() {
 
@@ -41,16 +40,11 @@ export default function App() {
       <div style={styles.card}>
         <input
           value={input}
-          onChange={(e) =>
-            setInput(e.target.value)
-          }
+          onChange={(e) => setInput(e.target.value)}
           style={styles.input}
         />
 
-        <button
-          onClick={run}
-          style={styles.button}
-        >
+        <button onClick={run} style={styles.button}>
           RUN
         </button>
       </div>
@@ -64,7 +58,7 @@ export default function App() {
         </span>
       </div>
 
-      {/* LOGS (SAFE) */}
+      {/* LOGS */}
       <div style={styles.logBox}>
         <h3>Logs</h3>
 
@@ -87,11 +81,7 @@ export default function App() {
           <h3>Result</h3>
 
           <pre>
-            {JSON.stringify(
-              state.result,
-              null,
-              2
-            )}
+            {JSON.stringify(state.result, null, 2)}
           </pre>
         </div>
       )}
