@@ -1,1 +1,37 @@
+.dashboard {
+  padding: 24px;
+}
 
+.dashboard-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #E2E8F0;
+  margin-bottom: 8px;
+}
+
+.dashboard-subtitle {
+  color: #64748B;
+  margin-bottom: 24px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.dashboard-card {
+  background: #111122;
+  border: 1px solid #222244;
+  border-radius: 12px;
+  padding: 16px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-online {
+  color: #34D399;
+  font-weight: bold;
+}
