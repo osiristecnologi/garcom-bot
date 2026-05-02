@@ -1,10 +1,11 @@
-function parseCommand(text) {
-
-  let cmd = text.toLowerCase();
+export function parseIntent(query) {
+  const q = query.toLowerCase();
 
   return {
-    createSite: cmd.includes("site"),
-    dark: cmd.includes("dark"),
-    menu: cmd.includes("menu")
+    crypto: /bitcoin|btc|ethereum|crypto/.test(q),
+    weather: /clima|tempo|chuva/.test(q),
+    news: /news|noticias/.test(q),
+    maps: /rota|mapa|distancia/.test(q),
+    dev: /github|react|codigo/.test(q)
   };
 }
