@@ -1,1 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
 
+datasource db {
+  provider = "sqlite"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  password String
+}
+
+model Config {
+  id String @id @default(cuid())
+  nomeLoja String @default("Garçom Bot")
+  chavePix String
+  whatsapp String
+  taxaServico Float @default(10)
+  aceitaEntrega Boolean @default(true)
+}
+
+model Categoria {
+  id String @id @default(cuid())
+  nome String
+  icone String
+  ordem Int
+  produtos Produto[]
+}
+
+model Produto {
+  id String @id @default(cuid())
+  nome String
+  desc String
+  preco Float
+  imagem String
+  ativo Boolean @default(true)
+  categoriaId String
+  categoria Categoria @relation(fields: [categoriaId], references: [id])
+}
+
+model Pedido {
+  id String @id @default(cuid())
+  tipo String // mesa ou entrega
+  mesa String?
+  endereco Json?
+  telefone String?
+  itens Json
+  subtotal Float
+  taxa Float
+  total Float
+  pagamento String
+  comprovante String?
+  status String @default("Recebido")
+  createdAt DateTime @default(now())
+}
