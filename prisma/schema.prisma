@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql" // TROCOU AQUI
   url = env("DATABASE_URL")
 }
 
@@ -45,9 +45,9 @@ model Pedido {
   id String @id @default(cuid())
   tipo String // mesa ou entrega
   mesa String?
-  endereco Json?
+  endereco Json? // AGORA FUNCIONA NO POSTGRES
   telefone String?
-  itens Json
+  itens Json // AGORA FUNCIONA NO POSTGRES
   subtotal Float
   taxa Float
   total Float
