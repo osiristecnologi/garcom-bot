@@ -4,6 +4,9 @@ import { useState } from 'react'
 type Item = { id: number, nome: string, desc: string, preco: number, img: string }
 type Carrinho = { item: Item, qtd: number }
 
+const WHATSAPP_NUMBER = '5562981443598'
+const CHAVE_PIX = '7ccbec4f-851f-4b87-b5ee-a80959182dbb' // Tua chave aqui
+
 const cardapio: Record<string, Item[]> = {
   PIZZAS: [
     { id: 1, nome: "Calabresa", desc: "Molho de tomate, mussarela, calabresa fatiada e orégano.", preco: 45.90, img: "🍕" },
@@ -20,26 +23,40 @@ const cardapio: Record<string, Item[]> = {
 export default function Home() {
   const [categoria, setCategoria] = useState('PIZZAS')
   const [carrinho, setCarrinho] = useState<Carrinho[]>([])
+  const [mostrarPix, setMostrarPix] = useState(false)
 
   const addCarrinho = (item: Item) => {
     setCarrinho(prev => {
       const existe = prev.find(p => p.item.id === item.id)
-      if (existe) return prev.map(p => p.item.id === item.id? {...p, qtd: p.qtd + 1 } : p)
+      if (existe) return prev.map(p => p.item.id === item.id? {...p, qtd: p.qtd + 1} : p)
       return [...prev, { item, qtd: 1 }]
     })
   }
 
-  const removerCarrinho = (id: number) => {
+  const removerItem = (id: number) => {
     setCarrinho(prev => prev.filter(p => p.item.id!== id))
+  }
+
+  const cancelarPedido = () => {
+    if (confirm('Tem certeza que quer cancelar o pedido?')) {
+      setCarrinho([])
+      setMostrarPix(false)
+    }
   }
 
   const total = carrinho.reduce((acc, p) => acc + p.item.preco * p.qtd, 0)
   const qtdTotal = carrinho.reduce((acc, p) => acc + p.qtd, 0)
 
   const enviarZap = () => {
-    const texto = carrinho.map(p => `${p.qtd}x ${p.item.nome} - R$ ${(p.item.preco * p.qtd).toFixed(2)}`).join('%0A')
-    const msg = `Olá! Quero fazer um pedido:%0A%0A${texto}%0A%0ATotal: R$ ${total.toFixed(2)}`
-    window.open(`https://wa.me/5562999999999?text=${msg}`, '_blank') // Troca o número aqui
+    if (carrinho.length === 0) return
+    const texto = carrinho.map(p => `• ${p.qtd}x ${p.item.nome} - R$ ${(p.item.preco * p.qtd).toFixed(2)}`).join('%0A')
+    const msg = `*NOVO PEDIDO - GARÇOM BOT*%0A%0A${texto}%0A%0A*TOTAL: R$ ${total.toFixed(2)}*%0A%0A*PIX: ${CHAVE_PIX}*%0A%0ANome:%0AEndereço:%0AForma de pagamento:`
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
+  }
+
+  const copiarPix = () => {
+    navigator.clipboard.writeText(CHAVE_PIX)
+    alert('Chave PIX copiada! 🔑')
   }
 
   return (
@@ -53,13 +70,13 @@ export default function Home() {
         </div>
       </header>
 
-      <main style={{ maxWidth: '500px', margin: '0 auto', padding: '16px' }}>
+      <main style={{ maxWidth: '500px', margin: '0 auto', padding: '16px', paddingBottom: mostrarPix? '280px' : '120px' }}>
         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto' }}>
           {Object.keys(cardapio).map(cat => (
             <button key={cat} onClick={() => setCategoria(cat)} style={{
               padding: '10px 16px', borderRadius: '8px', border: 'none',
               background: categoria === cat? '#f97316' : '#262626',
-              color: '#fff', fontWeight: 600, whiteSpace: 'nowrap'
+              color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', cursor: 'pointer'
             }}>
               {cat}
             </button>
@@ -76,36 +93,76 @@ export default function Home() {
             </div>
             <button onClick={() => addCarrinho(item)} style={{
               width: '36px', height: '36px', borderRadius: '50%', border: '2px solid #f97316',
-              background: 'transparent', color: '#f97316', fontSize: '20px', alignSelf: 'center'
+              background: 'transparent', color: '#f97316', fontSize: '20px', alignSelf: 'center', cursor: 'pointer'
             }}>+</button>
           </div>
         ))}
 
         {carrinho.length > 0 && (
-          <div style={{ background: '#1a1a1a', borderRadius: '12px', padding: '16px', marginTop: '24px' }}>
-            <h3 style={{ margin: '0 0 12px' }}>🛍️ SEU PEDIDO - {qtdTotal} itens</h3>
-            {carrinho.map(p => (
-              <div key={p.item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
-                <span>{p.qtd}x {p.item.nome}</span>
-                <div>
-                  <span>R$ {(p.item.preco * p.qtd).toFixed(2)}</span>
-                  <button onClick={() => removerCarrinho(p.item.id)} style={{ marginLeft: '8px', background: 'none', border: 'none', color: '#ef4444' }}>🗑️</button>
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0,
+            background: '#1a1a1a', borderTop: '1px solid #333',
+            padding: '16px', maxWidth: '500px', margin: '0 auto'
+          }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: '16px' }}>🛍️ SEU PEDIDO - {qtdTotal} itens</h3>
+            <div style={{ maxHeight: '100px', overflowY: 'auto', marginBottom: '12px' }}>
+              {carrinho.map(p => (
+                <div key={p.item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
+                  <span>{p.qtd}x {p.item.nome}</span>
+                  <div>
+                    <span>R$ {(p.item.preco * p.qtd).toFixed(2)}</span>
+                    <button onClick={() => removerItem(p.item.id)} style={{ marginLeft: '8px', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>🗑️</button>
+                  </div>
                 </div>
-              </div>
-            ))}
-            <div style={{ borderTop: '1px solid #333', marginTop: '12px', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+              ))}
+            </div>
+            <div style={{ borderTop: '1px solid #333', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginBottom: '12px' }}>
               <span>TOTAL</span>
               <span style={{ color: '#f97316' }}>R$ {total.toFixed(2)}</span>
             </div>
-            <button onClick={enviarZap} style={{
-              width: '100%', marginTop: '16px', padding: '14px', borderRadius: '8px',
-              border: 'none', background: '#22c55e', color: '#000', fontWeight: 700, fontSize: '16px'
-            }}>
-              📲 ENVIAR PEDIDO PELO WHATSAPP
-            </button>
+
+            {mostrarPix && (
+              <div style={{ background: '#0a0a0a', borderRadius: '8px', padding: '12px', marginBottom: '12px', border: '1px solid #22c55e' }}>
+                <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 600, color: '#22c55e' }}>💸 PAGUE COM PIX</p>
+                <div style={{ fontSize: '12px', wordBreak: 'break-all', background: '#1a1a1a', padding: '8px', borderRadius: '6px', marginBottom: '8px' }}>
+                  {CHAVE_PIX}
+                </div>
+                <button onClick={copiarPix} style={{
+                  width: '100%', padding: '8px', borderRadius: '6px',
+                  border: '1px solid #22c55e', background: 'transparent',
+                  color: '#22c55e', fontSize: '13px', cursor: 'pointer'
+                }}>
+                  📋 COPIAR CHAVE PIX
+                </button>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={cancelarPedido} style={{
+                flex: 1, padding: '14px', borderRadius: '8px',
+                border: '1px solid #ef4444', background: 'transparent',
+                color: '#ef4444', fontWeight: 700, fontSize: '14px', cursor: 'pointer'
+              }}>
+                ❌ CANCELAR
+              </button>
+              <button onClick={() => setMostrarPix(!mostrarPix)} style={{
+                flex: 1, padding: '14px', borderRadius: '8px',
+                border: '1px solid #22c55e', background: 'transparent',
+                color: '#22c55e', fontWeight: 700, fontSize: '14px', cursor: 'pointer'
+              }}>
+                {mostrarPix? '🔽 FECHAR PIX' : '💸 PIX'}
+              </button>
+              <button onClick={enviarZap} style={{
+                flex: 2, padding: '14px', borderRadius: '8px',
+                border: 'none', background: '#22c55e', color: '#000',
+                fontWeight: 700, fontSize: '14px', cursor: 'pointer'
+              }}>
+                📲 ENVIAR ZAP
+              </button>
+            </div>
           </div>
         )}
       </main>
     </div>
   )
-}
+              }
