@@ -1,168 +1,167 @@
 'use client'
 import { useState } from 'react'
 
-type Item = { id: number, nome: string, desc: string, preco: number, img: string }
-type Carrinho = { item: Item, qtd: number }
-
-const WHATSAPP_NUMBER = '5562981443598'
-const CHAVE_PIX = '7ccbec4f-851f-4b87-b5ee-a80959182dbb' // Tua chave aqui
-
-const cardapio: Record<string, Item[]> = {
-  PIZZAS: [
-    { id: 1, nome: "Calabresa", desc: "Molho de tomate, mussarela, calabresa fatiada e orégano.", preco: 45.90, img: "🍕" },
-    { id: 2, nome: "Frango com Catupiry", desc: "Molho de tomate, mussarela, frango desfiado e catupiry.", preco: 49.90, img: "🍕" },
-    { id: 3, nome: "Portuguesa", desc: "Molho de tomate, mussarela, presunto, ovos, cebola e orégano.", preco: 47.90, img: "🍕" },
-    { id: 4, nome: "Quatro Queijos", desc: "Molho de tomate, mussarela, parmesão, provolone e gorgonzola.", preco: 48.90, img: "🍕" }
-  ],
-  BEBIDAS: [
-    { id: 5, nome: "Coca Cola 2L", desc: "Refrigerante gelado", preco: 12.00, img: "🥤" },
-    { id: 6, nome: "Suco Laranja", desc: "Natural 500ml", preco: 8.00, img: "🧃" }
-  ]
+type Categoria = {
+  id: number
+  nome: string
+  icone: string
 }
 
-export default function Home() {
-  const [categoria, setCategoria] = useState('PIZZAS')
-  const [carrinho, setCarrinho] = useState<Carrinho[]>([])
-  const [mostrarPix, setMostrarPix] = useState(false)
+type Produto = {
+  id: number
+  categoria_id: number
+  nome: string
+  desc: string
+  preco: number
+  foto_url: string
+}
 
-  const addCarrinho = (item: Item) => {
+type ItemCarrinho = Produto & { qtd: number }
+
+const CATEGORIAS: Categoria[] = [
+  { id: 1, nome: 'PIZZAS', icone: '🍕' },
+  { id: 2, nome: 'SANDUÍCHES', icone: '🍔' },
+  { id: 3, nome: 'PORÇÕES', icone: '🍟' },
+  { id: 4, nome: 'BEBIDAS', icone: '🥤' },
+  { id: 5, nome: 'SUCOS', icone: '🧃' },
+  { id: 6, nome: 'CERVEJAS', icone: '🍺' },
+  { id: 7, nome: 'CREMES', icone: '🍨' },
+]
+
+const PRODUTOS: Produto[] = [
+  { id: 1, categoria_id: 1, nome: 'Calabresa', desc: 'Molho, mussarela, calabresa e cebola', preco: 45.90, foto_url: 'https://placehold.co/400x300/orange/white?text=Pizza+Calabresa' },
+  { id: 2, categoria_id: 1, nome: 'Marguerita', desc: 'Molho, mussarela, tomate e manjericão', preco: 42.90, foto_url: 'https://placehold.co/400x300/red/white?text=Marguerita' },
+  { id: 3, categoria_id: 1, nome: 'Portuguesa', desc: 'Ovo, cebola, presunto, ervilha', preco: 48.90, foto_url: 'https://placehold.co/400x300/yellow/black?text=Portuguesa' },
+  { id: 4, categoria_id: 2, nome: 'X-Salada', desc: 'Pão, hambúrguer, queijo, alface, tomate', preco: 18.00, foto_url: 'https://placehold.co/400x300/green/white?text=X-Salada' },
+  { id: 5, categoria_id: 2, nome: 'X-Tudo', desc: 'Completo com tudo que tem direito', preco: 25.00, foto_url: 'https://placehold.co/400x300/brown/white?text=X-Tudo' },
+  { id: 6, categoria_id: 2, nome: 'X-Bacon', desc: 'Pão, hambúrguer, queijo e muito bacon', preco: 22.00, foto_url: 'https://placehold.co/400x300/red/white?text=X-Bacon' },
+  { id: 7, categoria_id: 3, nome: 'Batata Frita', desc: 'Porção 500g com cheddar e bacon', preco: 32.00, foto_url: 'https://placehold.co/400x300/yellow/black?text=Batata' },
+  { id: 8, categoria_id: 4, nome: 'Coca-Cola 2L', desc: 'Refrigerante gelado', preco: 12.00, foto_url: 'https://placehold.co/400x300/black/white?text=Coca+2L' },
+  { id: 9, categoria_id: 6, nome: 'Heineken 600ml', desc: 'Cerveja long neck gelada', preco: 14.00, foto_url: 'https://placehold.co/400x300/green/white?text=Heineken' },
+]
+
+export default function Home() {
+  const [categoriaAtiva, setCategoriaAtiva] = useState<Categoria | null>(null)
+  const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
+  const [mostrarCarrinho, setMostrarCarrinho] = useState(false)
+
+  const produtosFiltrados = categoriaAtiva 
+    ? PRODUTOS.filter(p => p.categoria_id === categoriaAtiva.id) 
+    : []
+
+  const addCarrinho = (produto: Produto) => {
     setCarrinho(prev => {
-      const existe = prev.find(p => p.item.id === item.id)
-      if (existe) return prev.map(p => p.item.id === item.id? {...p, qtd: p.qtd + 1} : p)
-      return [...prev, { item, qtd: 1 }]
+      const existe = prev.find(i => i.id === produto.id)
+      if (existe) {
+        return prev.map(i => i.id === produto.id ? { ...i, qtd: i.qtd + 1 } : i)
+      }
+      return [...prev, { ...produto, qtd: 1 }]
     })
   }
 
-  const removerItem = (id: number) => {
-    setCarrinho(prev => prev.filter(p => p.item.id!== id))
+  const removerCarrinho = (id: number) => {
+    setCarrinho(prev => prev.filter(i => i.id !== id))
   }
 
-  const cancelarPedido = () => {
-    if (confirm('Tem certeza que quer cancelar o pedido?')) {
-      setCarrinho([])
-      setMostrarPix(false)
-    }
-  }
-
-  const total = carrinho.reduce((acc, p) => acc + p.item.preco * p.qtd, 0)
-  const qtdTotal = carrinho.reduce((acc, p) => acc + p.qtd, 0)
-
-  const enviarZap = () => {
-    if (carrinho.length === 0) return
-    const texto = carrinho.map(p => `• ${p.qtd}x ${p.item.nome} - R$ ${(p.item.preco * p.qtd).toFixed(2)}`).join('%0A')
-    const msg = `*NOVO PEDIDO - GARÇOM BOT*%0A%0A${texto}%0A%0A*TOTAL: R$ ${total.toFixed(2)}*%0A%0A*PIX: ${CHAVE_PIX}*%0A%0ANome:%0AEndereço:%0AForma de pagamento:`
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
-  }
-
-  const copiarPix = () => {
-    navigator.clipboard.writeText(CHAVE_PIX)
-    alert('Chave PIX copiada! 🔑')
-  }
+  const total = carrinho.reduce((acc, i) => acc + i.preco * i.qtd, 0)
+  const totalItens = carrinho.reduce((acc, i) => acc + i.qtd, 0)
 
   return (
-    <div style={{ fontFamily: 'system-ui', background: '#111', color: '#fff', minHeight: '100vh' }}>
-      <header style={{ padding: '16px', background: '#000', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '500px', margin: '0 auto' }}>
-          <h1 style={{ margin: 0, fontSize: '20px' }}>GARÇOM <span style={{ color: '#f97316' }}>BOT</span></h1>
-          <div style={{ position: 'relative' }}>
-            🛒 {qtdTotal > 0 && <span style={{ position: 'absolute', top: -8, right: -8, background: '#f97316', borderRadius: '50%', width: 18, height: 18, fontSize: 12, display: 'grid', placeItems: 'center' }}>{qtdTotal}</span>}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-600 p-4 text-white">
+      <div className="max-w-md mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-2">Garçom Bot</h1>
+        <p className="text-center text-blue-200 mb-6">Toque na categoria</p>
 
-      <main style={{ maxWidth: '500px', margin: '0 auto', padding: '16px', paddingBottom: mostrarPix? '280px' : '120px' }}>
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto' }}>
-          {Object.keys(cardapio).map(cat => (
-            <button key={cat} onClick={() => setCategoria(cat)} style={{
-              padding: '10px 16px', borderRadius: '8px', border: 'none',
-              background: categoria === cat? '#f97316' : '#262626',
-              color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', cursor: 'pointer'
-            }}>
-              {cat}
+        {!categoriaAtiva ? (
+          <div className="grid grid-cols-2 gap-4">
+            {CATEGORIAS.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setCategoriaAtiva(cat)}
+                className="bg-white/10 backdrop-blur rounded-2xl p-6 flex flex-col items-center hover:bg-white/20 transition"
+              >
+                <span className="text-5xl mb-2">{cat.icone}</span>
+                <span className="font-bold text-sm">{cat.nome}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div>
+            <button 
+              onClick={() => setCategoriaAtiva(null)}
+              className="mb-4 text-blue-200 hover:text-white"
+            >
+              ← Voltar
             </button>
-          ))}
-        </div>
-
-        {cardapio[categoria].map(item => (
-          <div key={item.id} style={{ background: '#1a1a1a', borderRadius: '12px', padding: '12px', marginBottom: '12px', display: 'flex', gap: '12px' }}>
-            <div style={{ fontSize: '40px' }}>{item.img}</div>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ margin: '0 0 4px', fontSize: '16px' }}>{item.nome}</h3>
-              <p style={{ margin: '0 0 8px', fontSize: '13px', opacity: 0.7 }}>{item.desc}</p>
-              <strong style={{ color: '#f97316' }}>R$ {item.preco.toFixed(2)}</strong>
-            </div>
-            <button onClick={() => addCarrinho(item)} style={{
-              width: '36px', height: '36px', borderRadius: '50%', border: '2px solid #f97316',
-              background: 'transparent', color: '#f97316', fontSize: '20px', alignSelf: 'center', cursor: 'pointer'
-            }}>+</button>
-          </div>
-        ))}
-
-        {carrinho.length > 0 && (
-          <div style={{
-            position: 'fixed', bottom: 0, left: 0, right: 0,
-            background: '#1a1a1a', borderTop: '1px solid #333',
-            padding: '16px', maxWidth: '500px', margin: '0 auto'
-          }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: '16px' }}>🛍️ SEU PEDIDO - {qtdTotal} itens</h3>
-            <div style={{ maxHeight: '100px', overflowY: 'auto', marginBottom: '12px' }}>
-              {carrinho.map(p => (
-                <div key={p.item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
-                  <span>{p.qtd}x {p.item.nome}</span>
-                  <div>
-                    <span>R$ {(p.item.preco * p.qtd).toFixed(2)}</span>
-                    <button onClick={() => removerItem(p.item.id)} style={{ marginLeft: '8px', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>🗑️</button>
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <span>{categoriaAtiva.icone}</span> {categoriaAtiva.nome}
+            </h2>
+            <div className="space-y-3">
+              {produtosFiltrados.map(prod => (
+                <div key={prod.id} className="bg-white/10 backdrop-blur rounded-xl p-3 flex gap-3">
+                  <img src={prod.foto_url} alt={prod.nome} className="w-20 h-20 rounded-lg object-cover" />
+                  <div className="flex-1">
+                    <h3 className="font-bold">{prod.nome}</h3>
+                    <p className="text-xs text-blue-200">{prod.desc}</p>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="font-bold text-green-400">R$ {prod.preco.toFixed(2)}</span>
+                      <button 
+                        onClick={() => addCarrinho(prod)}
+                        className="bg-green-500 px-3 py-1 rounded-lg text-sm font-bold hover:bg-green-600"
+                      >
+                        + Add
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div style={{ borderTop: '1px solid #333', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginBottom: '12px' }}>
-              <span>TOTAL</span>
-              <span style={{ color: '#f97316' }}>R$ {total.toFixed(2)}</span>
-            </div>
+          </div>
+        )}
 
-            {mostrarPix && (
-              <div style={{ background: '#0a0a0a', borderRadius: '8px', padding: '12px', marginBottom: '12px', border: '1px solid #22c55e' }}>
-                <p style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 600, color: '#22c55e' }}>💸 PAGUE COM PIX</p>
-                <div style={{ fontSize: '12px', wordBreak: 'break-all', background: '#1a1a1a', padding: '8px', borderRadius: '6px', marginBottom: '8px' }}>
-                  {CHAVE_PIX}
+        {totalItens > 0 && (
+          <button
+            onClick={() => setMostrarCarrinho(true)}
+            className="fixed bottom-4 left-4 right-4 max-w-md mx-auto bg-green-500 py-4 rounded-xl font-bold text-lg shadow-lg"
+          >
+            Ver Carrinho • {totalItens} {totalItens === 1 ? 'item' : 'itens'} • R$ {total.toFixed(2)}
+          </button>
+        )}
+
+        {mostrarCarrinho && (
+          <div className="fixed inset-0 bg-black/70 flex items-end" onClick={() => setMostrarCarrinho(false)}>
+            <div className="bg-blue-800 w-full max-w-md mx-auto rounded-t-2xl p-4" onClick={e => e.stopPropagation()}>
+              <h2 className="text-xl font-bold mb-4">Seu Pedido</h2>
+              {carrinho.map(item => (
+                <div key={item.id} className="flex justify-between items-center mb-2 bg-white/10 p-2 rounded">
+                  <div>
+                    <p className="font-bold">{item.nome}</p>
+                    <p className="text-sm text-blue-200">R$ {item.preco.toFixed(2)} x {item.qtd}</p>
+                  </div>
+                  <button onClick={() => removerCarrinho(item.id)} className="text-red-400 font-bold">X</button>
                 </div>
-                <button onClick={copiarPix} style={{
-                  width: '100%', padding: '8px', borderRadius: '6px',
-                  border: '1px solid #22c55e', background: 'transparent',
-                  color: '#22c55e', fontSize: '13px', cursor: 'pointer'
-                }}>
-                  📋 COPIAR CHAVE PIX
+              ))}
+              <div className="border-t border-white/20 mt-4 pt-4">
+                <div className="flex justify-between text-xl font-bold mb-4">
+                  <span>Total:</span>
+                  <span className="text-green-400">R$ {total.toFixed(2)}</span>
+                </div>
+                <button 
+                  onClick={() => {
+                    alert(`Pedido enviado! Total: R$ ${total.toFixed(2)}`)
+                    setCarrinho([])
+                    setMostrarCarrinho(false)
+                    setCategoriaAtiva(null)
+                  }}
+                  className="w-full bg-green-500 py-3 rounded-xl font-bold"
+                >
+                  Finalizar Pedido
                 </button>
               </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={cancelarPedido} style={{
-                flex: 1, padding: '14px', borderRadius: '8px',
-                border: '1px solid #ef4444', background: 'transparent',
-                color: '#ef4444', fontWeight: 700, fontSize: '14px', cursor: 'pointer'
-              }}>
-                ❌ CANCELAR
-              </button>
-              <button onClick={() => setMostrarPix(!mostrarPix)} style={{
-                flex: 1, padding: '14px', borderRadius: '8px',
-                border: '1px solid #22c55e', background: 'transparent',
-                color: '#22c55e', fontWeight: 700, fontSize: '14px', cursor: 'pointer'
-              }}>
-                {mostrarPix? '🔽 FECHAR PIX' : '💸 PIX'}
-              </button>
-              <button onClick={enviarZap} style={{
-                flex: 2, padding: '14px', borderRadius: '8px',
-                border: 'none', background: '#22c55e', color: '#000',
-                fontWeight: 700, fontSize: '14px', cursor: 'pointer'
-              }}>
-                📲 ENVIAR ZAP
-              </button>
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   )
-              }
+}
