@@ -1,13 +1,7 @@
-garcom-bot/
-  app/
-    api/
-      cardapio/
-        route.ts  <-- COLA O CÓDIGO AQUI
-      pedidos/
-        route.ts
-    page.tsx
-    admin/
-      page.tsx
-  prisma/
-    schema.prisma
-    seed.ts
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  return NextResponse.json({ 
+    message: "Garcom Bot API no ar" 
+  })
+}
