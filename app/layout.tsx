@@ -1,3 +1,9 @@
+import './globals.css'
+
+export const metadata = {
+  title: 'Garçom Bot',
+}
+
 export default function RootLayout({
   children,
 }: {
