@@ -1,8 +1,3 @@
-export const metadata = {
-  title: 'Garcom Bot',
-  description: 'Bot do garçom',
-}
-
 export default function RootLayout({
   children,
 }: {
